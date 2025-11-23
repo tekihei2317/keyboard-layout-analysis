@@ -3,7 +3,7 @@ import { getTsukiStrokeCount } from "./strokes-tsuki.ts";
 import { getJisKanaStrokeCount } from "./strokes-jis-kana.ts";
 import { countRomajiStrokesForWord } from "./strokes-roman.ts";
 
-const xml = await Deno.readTextFile("data/word4jp.xml");
+const xml = await Deno.readTextFile("data/1256_擬音・擬態語.xml");
 const parsed = parse(xml);
 
 const parts = Array.isArray(parsed.Words.Part)
@@ -40,6 +40,7 @@ const excludeChars = new Set([
   "ボ", // 公式ワード4 Charactersのほうにカタカナが入っている
   "タ",
   "ン",
+  "、",
 ]);
 
 function countCharacterFrequency(
