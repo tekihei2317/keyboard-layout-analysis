@@ -2,8 +2,9 @@ import { parse } from "https://deno.land/x/xml/mod.ts";
 import { getTsukiStrokeCount } from "./strokes-tsuki.ts";
 import { getJisKanaStrokeCount } from "./strokes-jis-kana.ts";
 import { countRomajiStrokesForWord } from "./strokes-roman.ts";
+import { countSelfmadeFrequencyForWord } from "./strokes-selfmade.ts";
 
-const xml = await Deno.readTextFile("data/1256_擬音・擬態語.xml");
+const xml = await Deno.readTextFile("data/1272_元気が出る言葉.xml");
 const parsed = parse(xml);
 
 const parts = Array.isArray(parsed.Words.Part)
@@ -21,6 +22,7 @@ for (const part of parts) {
   }
 }
 
+// 数字や記号等は除外して計算することにする
 const excludeChars = new Set([
   ..."0123456789",
   ..."abcdefghijklmnopqrstuvwxyz",
@@ -98,6 +100,13 @@ function countRomajiTotalStrokes(words: string[]): number {
   );
 }
 
+function countSelfmadeTotalStrokes(words: string[]): number {
+  return words.reduce(
+    (sum, word) => sum + countSelfmadeFrequencyForWord(word, excludeChars),
+    0
+  );
+}
+
 const frequencies = countCharacterFrequency(readings, { excludeNonKana: true });
 
 let total = 0;
@@ -169,4 +178,30 @@ const romanStat = makeStrokeStats(
   totalChars
 );
 
-printStrokeStatsTable([jisStat, tsukiStat, romanStat]);
+const selfmadeStat = makeStrokeStats(
+  "自作配列",
+  countSelfmadeTotalStrokes(readings),
+  totalChars
+);
+
+// Test:
+// console.log(
+//   "ありがとう: ",
+//   countSelfmadeFrequencyForWord("ありがとう", excludeChars)
+// );
+// console.log(
+//   "こんにちは: ",
+//   countSelfmadeFrequencyForWord("こんにちは", excludeChars)
+// );
+// console.log(
+//   "きょうははれです: ",
+//   countSelfmadeFrequencyForWord("きょうははれです", excludeChars)
+// );
+
+// console.log("きょう: ", countSelfmadeFrequencyForWord("きょう", excludeChars));
+// console.log(
+//   "はれです: ",
+//   countSelfmadeFrequencyForWord("はれです", excludeChars)
+// );
+
+printStrokeStatsTable([jisStat, tsukiStat, romanStat, selfmadeStat]);
