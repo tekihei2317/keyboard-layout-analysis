@@ -3,8 +3,9 @@ import { getTsukiStrokeCount } from "./strokes-tsuki.ts";
 import { getJisKanaStrokeCount } from "./strokes-jis-kana.ts";
 import { countRomajiStrokesForWord } from "./strokes-roman.ts";
 import { countSelfmadeFrequencyForWord } from "./strokes-selfmade.ts";
+import { countTsukimisouStrokesForWord } from "./strokes-tsukimisou-v3.ts";
 
-const xml = await Deno.readTextFile("data/1272_元気が出る言葉.xml");
+const xml = await Deno.readTextFile("data/1237_いろはかるた.xml");
 const parsed = parse(xml);
 
 const parts = Array.isArray(parsed.Words.Part)
@@ -107,6 +108,13 @@ function countSelfmadeTotalStrokes(words: string[]): number {
   );
 }
 
+function countTsukimisouStrokes(words: string[]): number {
+  return words.reduce(
+    (sum, word) => sum + countTsukimisouStrokesForWord(word, excludeChars),
+    0
+  );
+}
+
 const frequencies = countCharacterFrequency(readings, { excludeNonKana: true });
 
 let total = 0;
@@ -184,7 +192,13 @@ const selfmadeStat = makeStrokeStats(
   totalChars
 );
 
-// Test:
+const tsukimisouV3Stat = makeStrokeStats(
+  "月見草V3",
+  countTsukimisouStrokes(readings),
+  totalChars
+);
+
+// Test: 自作配列
 // console.log(
 //   "ありがとう: ",
 //   countSelfmadeFrequencyForWord("ありがとう", excludeChars)
@@ -204,4 +218,24 @@ const selfmadeStat = makeStrokeStats(
 //   countSelfmadeFrequencyForWord("はれです", excludeChars)
 // );
 
-printStrokeStatsTable([jisStat, tsukiStat, romanStat, selfmadeStat]);
+// Test: 月見草V3
+console.log(
+  "ありがとう: ",
+  countTsukimisouStrokesForWord("ありがとう", excludeChars)
+);
+console.log(
+  "こんにちは: ",
+  countTsukimisouStrokesForWord("こんにちは", excludeChars)
+);
+console.log("しゃ: ", countTsukimisouStrokesForWord("しゃ", excludeChars));
+console.log("しぇ: ", countTsukimisouStrokesForWord("しぇ", excludeChars));
+console.log("ひゃ: ", countTsukimisouStrokesForWord("ひゃ", excludeChars));
+console.log("ぎゃ: ", countTsukimisouStrokesForWord("ぎゃ", excludeChars));
+
+printStrokeStatsTable([
+  jisStat,
+  tsukiStat,
+  romanStat,
+  selfmadeStat,
+  tsukimisouV3Stat,
+]);
